@@ -7,6 +7,7 @@ import datetime as dt
 import DB_Scripts
 import configs
 import random
+from time import time
 
 #Read users
 #Read users_announced
@@ -27,8 +28,6 @@ def get_user_allemails():
     dfx= df_users["email"].tolist()
     emails = [x.split(",") for x in dfx]
     return list(dict.fromkeys(flatten_list(emails)))
-
-#print(get_user_allemails())
 
 def get_user_details(email):
     dfx= df_users[df_users["email"].str.contains(email, case=False)]
@@ -85,7 +84,7 @@ def get_user_latest_ocids_idno(email, idnox,awarded_bool, statut ="active", limi
             LIMIT {limit}
             """
 
-    #print(query)
+
     dfx = DB_Scripts.sql_readpd_custom(configs.Table_Procs, query)
     #keep last must be, for the updated version of the same ocid = published in the same date. 
     dfx.drop_duplicates(subset = "ocid", keep= "last", inplace= True)
@@ -106,7 +105,7 @@ def iname_tbuget_count_avglots_compl_idno_year(idnox, years=1, daysdelta = 1, we
             AND status = 'active'
             GROUP BY iname, idno
             """
-    #print(query)
+
     dfx = DB_Scripts.sql_readpd_custom(configs.Table_Procs, query)
     
     if len(dfx)>0:
@@ -117,16 +116,15 @@ def get_dataload_to_announce_mtfirst(email, idnox):
     #linked to get_user_interest
     #linked to user_announcedDB
     #IF ema
-
     #Variables= Name_Inst, IDNO, tenders, suma, average_lots, total_complaints
-
     User_List_announce_first= []
-
+    unixtimestamp_first_late = int(time()) - 3600*24*150 #150 days
     query = f"""
             SELECT user_email, announce_tip
             FROM public.users_announced prc
             WHERE user_email = '{email}'
             AND announce_tip = '{configs.announce_tip_mtfirst}'
+            AND unixtimestamp > {unixtimestamp_first_late}
             ORDER BY id ASC 
             """
     dfx = DB_Scripts.sql_readpd_custom(configs.Users_announced_Table , query)
@@ -136,7 +134,7 @@ def get_dataload_to_announce_mtfirst(email, idnox):
 
     return User_List_announce_first
 
-print(iname_tbuget_count_avglots_compl_idno_year(1006601001012))
+
 """
 ALL_Emails = get_user_allemails()
 for emailx in ALL_Emails:

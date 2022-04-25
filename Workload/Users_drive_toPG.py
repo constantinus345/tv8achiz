@@ -90,14 +90,12 @@ def match_inst(strx, matches = 7):
 def insert_registers_tv8_todb():
     for usr in range(len(I_Users)):
 
-
-        if len(I_Users_IDNO[usr])> 100:
+        if len(I_Users_IDNO[usr])> 5:
             continue
         print(f"{'_'*60}\n>>{usr+2}<<\n")
         for el in match_inst(I_Users[usr]):
             el.append(I_IDNO_IDNO[I_IDNO.index(el[1])])
             print(el)
-
 
     dfx = df_drive(configs.drive_tv8regist_key, "achizitii_tv8")
     no_idno = len([x for x in dfx["idno"].tolist() if len(x)<5])

@@ -5,6 +5,7 @@ import Users_to_Update
 from time import time, sleep
 import pandas as pd
 from random import randint as rdm
+from Telegram_funcs import Send_Telegram_Message
 
 time_start = time()
 EMAILS_ALL = Users_to_Update.get_user_allemails()
@@ -22,6 +23,8 @@ Users_announced_Cols = [ 'unixtimestamp', 'user_name', 'user_email', 'institutia
                  'raion', 'idno', 'announce_tip', 'ocid', 'date_published' , 'date_award', \
                      'buget' , 'name_achizitie', 'status', 'lots' , 'channel_type', 'channel_value']
 #insert_df_data(dfx, configs.Table_Users_Announced)"""
+
+Counter_Emails = 0
 for email in EMAILS_ALL:
     if len(Users_to_Update.get_user_idnos(email))==0: continue
     #if EMAILS_ALL.index(email)!= 1: continue
@@ -30,20 +33,20 @@ for email in EMAILS_ALL:
     except: 
         dfx= []
     if len(dfx)==0: continue
+    dfa_unixtimestamp = int(time())
+    dfa_user_name = dfx["user_fullname"][0]
+    dfa_raion = dfx["raion"][0]
+    dfa_announce_tip = configs.announce_tip_mtfirst
+    dfa_channel_type = "email"
 
     for idno in Users_to_Update.get_user_idnos(email):
-        IDNO_Data = Users_to_Update.iname_tbuget_count_avglots_compl_idno_year(idno)
-        if len(IDNO_Data)==0 : continue
-
-        print(email)
+        IDNO_Data = Users_to_Update.get_dataload_to_announce_mtfirst(email,idno)
         print(IDNO_Data)
-
-        dfa_unixtimestamp = int(time())
-        dfa_user_name = dfx["user_fullname"][0]
-
-        dfa_raion = dfx["raion"][0]
-        dfa_announce_tip = configs.announce_tip_mtfirst
-        dfa_channel_type = "email"
+        if len(IDNO_Data)==0 : continue
+        try:
+            if len(IDNO_Data[0])==0 :continue
+        except:
+            pass
 
         template_dict = {"user_name":dfa_user_name,"Inst_Name":str(IDNO_Data[1]), "Inst_IDNO":str(IDNO_Data[0].split("-")[-1]),
         "Inst_Buget": str(Users_to_Update.int_format(IDNO_Data[2])), 
@@ -58,14 +61,6 @@ for email in EMAILS_ALL:
 
         TO_email = email
         pdf_paths = []
-        """        print(type(Template_id))
-        print(type(pdf_paths))
-        print(type(Unsub_id))
-        print(type(groups_to_unsub))
-        print(type(template_dict))
-        print(type(configs.SGK1))
-        print(type())"""
-
 
         SG_Scripts.Send_SG_with_attachment(TO_email, Template_id, pdf_paths, Unsub_id, groups_to_unsub,
         template_dict,
@@ -74,8 +69,11 @@ for email in EMAILS_ALL:
 
         dfa = pd.DataFrame(dictx)
         DB_Scripts.insert_df_data(dfa, configs.Users_announced_Table)
+        Counter_Emails+=1
         print(f"{'_'*60}")
         sleep(rdm(1,3))
+
+Send_Telegram_Message(configs.Telegram_Constantin, f"TV8 Achizitii> sent {Counter_Emails} First Emails")
 
 time_end = time()
 took = round(time_end- time_start, 2)
