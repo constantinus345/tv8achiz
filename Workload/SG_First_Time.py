@@ -73,7 +73,9 @@ for email in EMAILS_ALL:
         print(f"{'_'*60}")
         sleep(rdm(1,3))
 
-Send_Telegram_Message(configs.Telegram_Constantin, f"TV8 Achizitii> sent {Counter_Emails} First Emails")
+
+if Counter_Emails>0:
+    Send_Telegram_Message(configs.Telegram_Constantin, f"TV8 Achizitii> sent {Counter_Emails} First Emails")
 
 time_end = time()
 took = round(time_end- time_start, 2)

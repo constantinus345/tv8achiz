@@ -77,10 +77,10 @@ for email in EMAILS_ALL:
             print(f"{'_'*60}")
             sleep(rdm(1,3))
 
-
-Send_Telegram_Message(configs.Telegram_Constantin,\
-    f"TV8 Achizitii> sent {Counter_Emails} Published emails, \
-    to {len(set(Counter_Users))} users about {len(set(Counter_OCIDs))} ocids".replace("  ",""))
+if Counter_Emails>0:
+    Send_Telegram_Message(configs.Telegram_Constantin,\
+        f"TV8 Achizitii> sent {Counter_Emails} Published emails, \
+        to {len(set(Counter_Users))} users about {len(set(Counter_OCIDs))} ocids".replace("  ",""))
 
 
 time_end = time()
